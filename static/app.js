@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // State
-    let currentTheme = localStorage.getItem('spam_theme') || 'dark';
+    let currentTheme = localStorage.getItem('spam_theme') || 'light';
     let scanHistory = JSON.parse(localStorage.getItem('spam_history') || '[]');
 
     // Initialize Theme
