@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Spam Detector AI | ChatGPT UI</title>
+    <meta name="description" content="AI-powered email spam detection web application matching ChatGPT aesthetic. Fast, minimal, and accurate spam classification with probability scores.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome / Lucide Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" id="new-check-btn">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>New Email Check</span>
+                </button>
+                <button class="sidebar-toggle-btn" id="sidebar-close-btn" title="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-history">
+                <div class="history-label">Recent Scans</div>
+                <div class="history-list" id="history-list">
+                    <!-- History items will be dynamically populated -->
+                    <div class="empty-history" id="empty-history">No recent scans yet</div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="model-status-card">
+                    <div class="status-indicator online"></div>
+                    <div class="status-info">
+                        <span class="status-title">Spam Model v1.0</span>
+                        <span class="status-sub">Logistic Regression (98.7% Acc)</span>
+                    </div>
+                </div>
+                <div class="footer-actions">
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Theme">
+                        <i class="fa-solid fa-moon" id="theme-icon"></i>
+                        <span id="theme-text">Dark Mode</span>
+                    </button>
+                    <button class="clear-history-btn" id="clear-history-btn" title="Clear History">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Mobile Bar -->
+            <header class="top-nav">
+                <button class="menu-btn" id="menu-btn" title="Open Sidebar">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="app-title">
+                    <i class="fa-solid fa-shield-halved accent-icon"></i>
+                    <span>Email Spam Detector AI</span>
+                </div>
+                <div class="top-nav-badge">Vercel Ready</div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Welcome Banner -->
+                <section class="welcome-header">
+                    <div class="icon-circle">
+                        <i class="fa-solid fa-shield-cat"></i>
+                    </div>
+                    <h1>Email Spam Classifier</h1>
+                    <p>Paste the email subject and message body below to detect spam probability with AI precision.</p>
+                </section>
+
+                <!-- Input Form Section -->
+                <section class="input-card">
+                    <form id="spam-form">
+                        <div class="form-group">
+                            <label for="subject-input">
+                                <i class="fa-solid fa-heading"></i> Subject Line
+                            </label>
+                            <input 
+                                type="text" 
+                                id="subject-input" 
+                                class="form-control" 
+                                placeholder="e.g. Urgent: Account Password Reset Required"
+                                autocomplete="off"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message-input">
+                                <i class="fa-solid fa-align-left"></i> Email Message Body
+                            </label>
+                            <textarea 
+                                id="message-input" 
+                                class="form-control textarea-control" 
+                                rows="5" 
+                                placeholder="e.g. Dear User, We detected suspicious activity on your account. Click here to confirm your details..."
+                                required
+                            ></textarea>
+                            <div class="character-count" id="char-count">0 characters</div>
+                        </div>
+
+                        <!-- Presets / Quick Sample Chips -->
+                        <div class="presets-section">
+                            <span class="presets-label"><i class="fa-solid fa-wand-magic-sparkles"></i> Try Sample Emails:</span>
+                            <div class="presets-chips">
+                                <button type="button" class="preset-chip" data-type="phishing">
+                                    <i class="fa-solid fa-user-ninja"></i> Password Scam (Spam)
+                                </button>
+                                <button type="button" class="preset-chip" data-type="lottery">
+                                    <i class="fa-solid fa-gift"></i> $1,000 Winner (Spam)
+                                </button>
+                                <button type="button" class="preset-chip" data-type="work">
+                                    <i class="fa-solid fa-briefcase"></i> Team Meeting (Legit)
+                                </button>
+                                <button type="button" class="preset-chip" data-type="invoice">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i> Gas Nomination (Legit)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="reset-btn">
+                                <i class="fa-solid fa-rotate-left"></i> Clear
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="submit-btn">
+                                <span>Analyze Email</span>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Loading Spinner -->
+                <div class="loading-state hidden" id="loading-state">
+                    <div class="spinner"></div>
+                    <p>Analyzing email patterns with TF-IDF Vectorizers & Logistic Regression...</p>
+                </div>
+
+                <!-- Error Alert -->
+                <div class="error-alert hidden" id="error-alert">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="error-message">An error occurred while connecting to the model API.</span>
+                </div>
+
+                <!-- Result Card Container (ChatGPT Message style) -->
+                <section class="result-card hidden" id="result-card">
+                    <div class="result-header">
+                        <div class="result-badge-wrapper">
+                            <div class="result-badge" id="result-badge">
+                                <i class="fa-solid fa-shield-virus" id="result-icon"></i>
+                                <span id="result-text">SPAM DETECTED</span>
+                            </div>
+                            <div class="confidence-pill" id="confidence-pill">99.1% Confidence</div>
+                        </div>
+                        <button class="copy-btn" id="copy-result-btn" title="Copy Analysis">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+
+                    <!-- Gauge & Meter Progress Bar -->
+                    <div class="meter-section">
+                        <div class="meter-labels">
+                            <span class="meter-title">Classification Probability Score</span>
+                            <span class="meter-val" id="spam-prob-text">Spam: 99.1%</span>
+                        </div>
+                        <div class="meter-bar-track">
+                            <div class="meter-bar-fill" id="meter-bar-fill"></div>
+                        </div>
+                        <div class="meter-legend">
+                            <span class="legend-item ham-legend"><i class="fa-solid fa-circle"></i> Ham (Legitimate): <strong id="ham-prob-val">0.9%</strong></span>
+                            <span class="legend-item spam-legend"><i class="fa-solid fa-circle"></i> Spam: <strong id="spam-prob-val">99.1%</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Grid -->
+                    <div class="analysis-grid">
+                        <div class="analysis-box">
+                            <div class="box-title"><i class="fa-solid fa-chart-pie"></i> Model Prediction</div>
+                            <div class="box-value" id="prediction-val">SPAM</div>
+                        </div>
+                        <div class="analysis-box">
+                            <div class="box-title"><i class="fa-solid fa-key"></i> Key Risk Triggers</div>
+                            <div class="box-value" id="triggers-val">None detected</div>
+                        </div>
+                        <div class="analysis-box">
+                            <div class="box-title"><i class="fa-solid fa-text-height"></i> Text Length</div>
+                            <div class="box-value" id="length-val">Subject: 0 | Message: 0</div>
+                        </div>
+                    </div>
+
+                    <!-- Security Recommendation Banner -->
+                    <div class="recommendation-banner" id="recommendation-banner">
+                        <i class="fa-solid fa-triangle-exclamation" id="rec-icon"></i>
+                        <span id="rec-text">High Risk: This message contains strong spam signals. Do not click any links or share sensitive information.</span>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="static/app.js"></script>
+</body>
+</html>
